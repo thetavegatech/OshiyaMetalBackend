@@ -7,7 +7,12 @@ const SlittingSchama = new mongoose.Schema({
     SlittingSrNo: {
         type: Number,
         require: true,
-        unique: true,   
+        // unique: true,   
+    },
+    SlittingSrNo: {
+        type: Number,
+        require: true,
+        // unique: true,   
     },
     GR: {
         type: String
