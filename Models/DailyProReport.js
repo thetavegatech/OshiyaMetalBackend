@@ -87,7 +87,10 @@ const DailyProReport = new mongoose.Schema({
     },
     Target : {
         type : Number
-    }
+    },
+    Scrap : {
+        type : Number
+    },
 })
 
 const DailyProductionReport = mongoose.model("DailyProReport", DailyProReport)
