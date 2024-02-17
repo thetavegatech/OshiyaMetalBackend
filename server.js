@@ -23,8 +23,8 @@ app.use(router);
 
 // Connect to MongoDB
 mongoose
-  // .connect("mongodb://localhost:27017/OshiyaMetal", {
-    .connect( "mongodb+srv://vaibhavdevkar101:Vaibhav123@cluster0.518nyqj.mongodb.net/OshiyaMetals?retryWrites=true&w=majority", {
+  .connect("mongodb://localhost:27017/OshiyaMetal", {
+    // .connect( "mongodb+srv://vaibhavdevkar101:Vaibhav123@cluster0.518nyqj.mongodb.net/OshiyaMetals?retryWrites=true&w=majority", {
     useUnifiedTopology: true,
   })
   .then(() => {

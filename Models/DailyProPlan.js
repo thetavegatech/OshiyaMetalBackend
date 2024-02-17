@@ -90,6 +90,12 @@ const DailyProPlan = new mongoose.Schema({
     },
     Target : {
         type : Number
+    },
+    roleChange : {
+        type : Number
+    },
+    rolechangetime : {
+        type : Number
     }
 })
 
