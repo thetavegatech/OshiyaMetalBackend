@@ -26,15 +26,27 @@ const MotherCoilSchema = new mongoose.Schema({
         type: Number,
         require: true
     },
-    RemainingWeigth: {
-        type: Number,
+    ActualCoilWidth : {
+        type : Number
     },
-    UsedWeigth: {
-        type: Number,
+    ActualCoilWeigth : {
+        type : Number
     },
-    CertificateNo: {
-        type: Number,
+    Grade : {
+        type : Number
     },
+    CoilType : {
+        type : String
+    },
+    // RemainingWeigth: {
+    //     type: Number,
+    // },
+    // UsedWeigth: {
+    //     type: Number,
+    // },
+    // CertificateNo: {
+    //     type: Number,
+    // },
     Date: {
         type: Date,
         default: Date.now,
