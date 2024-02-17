@@ -7,7 +7,7 @@ const DailyProPlan = new mongoose.Schema({
     Size : {
         type : Number
     },
-    Od : {
+    odSize : {
         type : Number
     },
     Thick : {
