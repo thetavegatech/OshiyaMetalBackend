@@ -1,10 +1,11 @@
 const express = require("express")
 const {CreateWeightMaster, getWeightMaster, getId} = require("../Controller/WeightMasterController")
 const { CreateMotherCoil, getdatabySrNo, getAllSrNos, getAllMotherCoilData } = require("../Controller/MotherCoilController")
-const { CreateSlittingMaster, getTotalWeight, getAllslittingData } = require("../Controller/SlittingController")
-const { getDailyproPlanData, DailyProPlanSave } = require("../Controller/DailyProPlanController")
+const { CreateSlittingMaster, getTotalWeight, getAllslittingData, getEntriesBySlitSrNo} = require("../Controller/SlittingController")
+const { getDailyproPlanData, DailyProPlanSave, getDailyproPlanById, dailyproplan, dailyproplanNo, getProductionPlanNos} = require("../Controller/DailyProPlanController")
 const { getDailyproReportData, DailyProReportSave } = require("../Controller/DailyProReportController")
 // const weightMasterController = require("../controllers/weightMasterController")
+// const slittingController = require('../controllers/slittingController');
 
 
 const router = express()
@@ -31,8 +32,8 @@ router.get('/api/data/srno/:srno', getdatabySrNo)
 router.get("/api/allSrNos", getAllSrNos)
 //This route for get All data of motherCoil data
 router.get("/api/getallmothercoildata" , getAllMotherCoilData)
-
-
+// Add the new route for getting entries by SlitSrNo
+router.get('/entries/:SlitSrNo',getEntriesBySlitSrNo)
 
 
 //Slitting master router 
@@ -51,9 +52,16 @@ router.post("/api/saveproplan", DailyProPlanSave)
 //This route for the getall data 
 router.get("/api/getdailyproplandata", getDailyproPlanData)
 
+router.get("/api/getDailyproPlanById/:id", getDailyproPlanById)
+
 // Daily Produnction Report Router 
 router.post("/api/saveproreport", DailyProReportSave)
 
 router.get("/api/getdailyproreportdata", getDailyproReportData)
+
+router.get("/api/dailyproplan/:productionPlanNo", dailyproplan)
+ 
+router.get("/api/dailyproplanNos", dailyproplanNo)
+router.get("/api/getProductionPlanNos", getProductionPlanNos)
 
 module.exports = router;

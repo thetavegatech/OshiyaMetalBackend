@@ -27,7 +27,75 @@ const getDailyproPlanData = async (req, res) => {
    }
 }
 
+const getDailyproPlanById = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const plan = await DailyProductionPlan.findById(id);
+
+        if (!plan) {
+            return res.status(404).json({ error: "Plan not found" });
+        }
+
+        res.status(200).json(plan);
+    } catch (err) {
+        res.status(500).json({ err: "Internal Server Error" });
+    }
+};
+const dailyproplan = async (req, res) => {
+// router.get('/api/dailyproplan/:productionPlanNo', async (req, res) => {
+    try {
+      const { productionPlanNo } = req.params;
+      const plan = await DailyProductionPlan.findOne({ productionPlanNo });
+  
+      if (!plan) {
+        return res.status(404).json({ error: 'Plan not found' });
+      }
+  
+      res.status(200).json(plan);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+  const dailyproplanNo = async (req, res) => {
+//   router.get('/api/dailyproplan/:productionPlanNo', async (req, res) => {
+    try {
+      const { productionPlanNo } = req.params;
+      const plan = await DailyProductionPlan.findOne({ productionPlanNo });
+  
+      if (!plan) {
+        return res.status(404).json({ error: 'Plan not found' });
+      }
+  
+      res.status(200).json(plan);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+  const getProductionPlanNos = async (req, res) => {
+//   router.get("/api/getProductionPlanNos", async (req, res) => {
+    try {
+      // Fetch all productionPlanNos from the database
+      const productionPlanNos = await DailyProductionPlan.find({}, 'productionPlanNo');
+  
+      // Extract the productionPlanNo values into an array
+      const productionPlanNoArray = productionPlanNos.map(plan => plan.productionPlanNo);
+  
+      res.status(200).json(productionPlanNoArray);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+  
 module.exports = {
    DailyProPlanSave,
-   getDailyproPlanData
+   getDailyproPlanData,
+   getDailyproPlanById,
+   dailyproplan,
+   dailyproplanNo,
+   getProductionPlanNos
 }

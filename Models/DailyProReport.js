@@ -1,13 +1,17 @@
 const mongoose = require("mongoose")
 
 const DailyProReport = new mongoose.Schema({
-    Date : {
-        type: Date,
+    date: { type: Date, default: Date.now },
+    selectedCombinedId: {
+        type: String,
+    },
+    selectedProductionPlanNo: {
+        type: Number,
     },
     Size : {
-        type : Number
+        type : String
     },
-    Od : {
+    odSize : {
         type : Number
     },
     Thick : {

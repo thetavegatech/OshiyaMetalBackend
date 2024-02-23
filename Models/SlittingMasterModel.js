@@ -4,6 +4,13 @@ const SlittingSchama = new mongoose.Schema({
     MotherCoilId: {
         type: Number,
     },
+    SlitSrNo: {
+        type: Number,
+    },
+    combinedId: {
+        type: Number,
+        unique: true,  
+    },
     SlittingSrNo: {
         type: Number,
         require: true,

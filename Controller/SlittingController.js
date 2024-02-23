@@ -22,23 +22,6 @@ const CreateSlittingMaster = async (req, res) => {
 };
 
 
-// const getTotalWeight = async (req, res) => {
-//     const mothermoilno = req.params.mothermoilno;
-
-//     try {
-//         const TotalWeigthCoil = await SlittingModel.find({ MotherCoilId: mothermoilno }, { TotalWeigth: 1 });
-
-//         if (!TotalWeigthCoil || TotalWeigthCoil.length === 0) {
-//             return res.status(404).json({ message: 'Data not found' });
-//         }
-//         // Calculate the sum of TotalWeigth values
-//         const totalWeightSum = TotalWeigthCoil.reduce((sum, item) => sum + item.TotalWeigth, 0);
-
-//         res.json({ totalWeightSum });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// };
 
 const getTotalWeight = async (req, res) => {
     const mothermoilno = req.params.mothermoilno;
@@ -76,8 +59,27 @@ const getAllslittingData = async (req, res) => {
     }
 }
 
+const getEntriesBySlitSrNo = async (req, res) => {
+    const SlitSrNo = req.params.SlitSrNo;
+
+    try {
+        const entries = await Entry.find({ 'entries.combinedId': SlitSrNo });
+
+        if (!entries || entries.length === 0) {
+            return res.status(404).json({ message: 'Entries not found for the specified SlitSrNo' });
+        }
+
+        res.json(entries);
+    } catch (error) {
+        console.error("Error fetching entries by SlitSrNo:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
 module.exports = {
     CreateSlittingMaster,
     getTotalWeight,
-    getAllslittingData
+    getAllslittingData,
+    getEntriesBySlitSrNo
 }
