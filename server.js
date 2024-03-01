@@ -20,7 +20,7 @@ app.use(router);
 // Connect to MongoDB
 mongoose
   // .connect("mongodb://localhost:27017/OshiyaMetal", {
-    .connect( "mongodb+srv://vaibhavdevkar101:Vaibhav123@cluster0.518nyqj.mongodb.net/OshiyaMetals?retryWrites=true&w=majority", {
+     .connect( "mongodb+srv://vaibhavdevkar101:Vaibhav123@cluster0.518nyqj.mongodb.net/OshiyaMetals?retryWrites=true&w=majority", {
     useUnifiedTopology: true,
   })
   .then(() => {
@@ -34,14 +34,16 @@ mongoose
 app.use(router);
 
 const entrySchema = new mongoose.Schema({
+  MotherCoilId: Number, // Single MotherCoilId for all entries in the document
   entries: [
     {
       MotherCoilId: Number,
       remainingWeightValue: Number,
       Slitcut: String,
       combinedId: String,
+      useNoofSlitinPlan: Number,
       SlitSrNo: Number,
-          SlitWidth: Number,
+      SlitWidth: Number,
       NoOfSlit: Number,
       OdSize: Number,
       WTMM: Number,
@@ -67,14 +69,36 @@ const Entry = mongoose.model("Entry", entrySchema);
 // Endpoint to save an array of entries
 app.post("/api/saveEntries", async (req, res) => {
   try {
-    const newEntry = new Entry({ entries: req.body });
-    const savedEntry = await newEntry.save();
-    res.json(savedEntry);
+    // Extract data from the request body
+    const { MotherCoilId, entries } = req.body;
+
+    // Check if a document with the given MotherCoilId exists
+    const existingEntry = await Entry.findOne({ MotherCoilId });
+
+    if (existingEntry) {
+      // If exists, append new entries to the existing entries array
+      existingEntry.entries = existingEntry.entries.concat(entries);
+      const updatedEntry = await existingEntry.save();
+      res.json(updatedEntry);
+    } else {
+      // If not exists, create a new Entry document
+      const newEntry = new Entry({
+        MotherCoilId: MotherCoilId,
+        entries: entries,
+      });
+
+      // Save the entry to the database
+      const savedEntry = await newEntry.save();
+
+      // Send the saved entry as a response
+      res.json(savedEntry);
+    }
   } catch (error) {
     console.error("Error saving entries:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 // Endpoint to get all entries
 app.get("/api/getEntries", async (req, res) => {
@@ -183,8 +207,27 @@ app.get("/api/getEntryByCombinedId/:motherCoilId/:slitSrNo", async (req, res) =>
 // Endpoint to get combined IDs
 app.get("/api/getCombinedIds", async (req, res) => {
   try {
-    // Fetch all unique combined IDs from your MongoDB collection
-    const combinedIds = await Entry.distinct("entries.combinedId");
+    // Use the aggregation framework to filter combined IDs
+    const result = await Entry.aggregate([
+      {
+        $unwind: "$entries"
+      },
+      {
+        $match: {
+          $expr: {
+            $ne: ["$entries.useNoofSlitinPlan", "$entries.SlitSrNo"]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$entries.combinedId"
+        }
+      }
+    ]);
+
+    // Extract the combined IDs from the result
+    const combinedIds = result.map(entry => entry._id);
 
     res.json(combinedIds);
   } catch (error) {
@@ -192,6 +235,8 @@ app.get("/api/getCombinedIds", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 
 app.get("/calculateTotal/:motherCoilId", async (req, res) => {
   const { motherCoilId } = req.params;
@@ -232,6 +277,83 @@ app.get("/calculateTotal/:motherCoilId", async (req, res) => {
   }
 });
 
+// below code is for update the existing entry 
+
+// POST API to insert or update an entry based on MotherCoilId
+// POST API to insert or update an entry based on MotherCoilId
+// POST API to add an entry to a specific document based on _id
+app.post('/api/entries/add/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if a document with the specified _id exists
+    const existingDocument = await Entry.findById(id);
+
+    if (!existingDocument) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    // Add the new entry to the entries array of the existing document
+    existingDocument.entries.push(req.body);
+
+    // Save the updated document
+    const updatedDocument = await existingDocument.save();
+
+    res.json(updatedDocument);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+//below code for count 
+// Add a new endpoint to get the count of entries for a specific MotherCoilId object
+app.get('/api/objectEntryCount/:motherCoilId', async (req, res) => {
+  try {
+    const { motherCoilId } = req.params;
+
+    // Find the entry with the given MotherCoilId
+    const entry = await Entry.findOne({ MotherCoilId: motherCoilId });
+
+    if (entry) {
+      // Count the number of entries within the found MotherCoilId object
+      const entryCount = entry.entries.length;
+
+      res.json({ count: entryCount });
+    } else {
+      // If the entry is not found, return 0 count
+      res.json({ count: 0 });
+    }
+  } catch (error) {
+    console.error('Error fetching entry count:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/updateentrybyplan', async (req, res) => {
+  const { selectedCombinedId, slitNos /* other fields you want to update */ } = req.body;
+
+  try {
+    const updatedEntry = await Entry.findOneAndUpdate(
+      { "entries.combinedId": selectedCombinedId },
+      { $set: { "entries.$.useNoofSlitinPlan": slitNos, /* update other fields */ } },
+      { new: true }
+    );
+
+    if (!updatedEntry) {
+      return res.status(404).json({ error: 'Entry not found' });
+    }
+
+    return res.json(updatedEntry);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
+
 app.listen(5001, () => {
-  console.log("Server is running on Port 5000");
+  console.log("Server is running on Port 5001");
 });
