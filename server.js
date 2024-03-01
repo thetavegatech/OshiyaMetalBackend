@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./Router/WeightMasterRouter");
+const vehicleRoutes  = require("./Router/VehicleRouter");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
@@ -16,6 +17,7 @@ const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 app.use("/api/users", userRoute);
 app.use(router);
+app.use(vehicleRoutes);
 
 // Connect to MongoDB
 mongoose
