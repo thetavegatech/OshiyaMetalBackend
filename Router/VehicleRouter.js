@@ -8,6 +8,7 @@ const { createVehicleTracking, getAllVehicleTracking } = require('../Controller/
 router.post('/vehicletracking', createVehicleTracking);
 
 // Route to retrieve all vehicle tracking records
+// Route to retrieve all vehicle tracking records
 router.get('/vehicletracking', getAllVehicleTracking);
 
 module.exports = router;
