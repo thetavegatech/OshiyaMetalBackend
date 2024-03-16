@@ -104,6 +104,12 @@ const DailyProPlan = new mongoose.Schema({
     },
     rolechangetime : {
         type : Number
+    },
+    WorkHours : {
+        type : Number
+    },
+    status : {
+        type : String
     }
 })
 // proplanSchema.plugin(AutoIncrement.plugin, { model: 'Proplan', field: 'productionPlanNo' });

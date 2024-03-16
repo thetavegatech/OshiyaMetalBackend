@@ -24,7 +24,7 @@ const authUser = asyncHandler(async (req, res) => {
             email: user.email,
             password: user.password,
             role: user.role,
-            mobileNO: user.mobileNO
+            AllotedMachine: user.AllotedMachine
         })
     } else {
         res.status(400);
@@ -37,7 +37,7 @@ const authUser = asyncHandler(async (req, res) => {
 // route Post /api/users/auth
 // @access public 
 const registerUser = asyncHandler(async (req, res) => {   
-    const { name, email, password, role, mobileNO } = req.body;   
+    const { name, email, password, role, AllotedMachine } = req.body;   
     const userExist = await User.findOne({email});
     if(userExist){
         res.status(400)
@@ -49,7 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email,
          password, 
          role,
-          mobileNO
+         AllotedMachine
     })
 
     if (user) {
@@ -60,7 +60,7 @@ const registerUser = asyncHandler(async (req, res) => {
             email: user.email,
             password: user.password,
             role: user.role,
-            mobileNO: user.mobileNO
+            AllotedMachine: user.AllotedMachine
         })
     } else {
         res.status(400);
@@ -92,7 +92,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,
-        mobileNO: req.user.mobileNO
+        AllotedMachine: req.user.AllotedMachine
     }
 
     res.status(200).json(user)
@@ -120,7 +120,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             name: updatedUser.name,
             email: updatedUser.email,
             role: updatedUser.role,
-            mobileNO: updatedUser.mobileNO
+            AllotedMachine: updatedUser.AllotedMachine
         })
 
     } else {
@@ -129,6 +129,15 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }  
 });
 
+const allotedMachineRouter = asyncHandler(async (req, res) => {
+    // Access the user information from the request object
+    const user = req.user;
+  
+    // Return the AllotedMachine of the logged-in user
+    res.status(200).json({
+      AllotedMachine: user.AllotedMachine,
+    });
+  });
 
 
 
@@ -138,5 +147,6 @@ module.exports = {
     registerUser,
     logoutUser,
     getUserProfile,
-    updateUserProfile
+    updateUserProfile,
+    allotedMachineRouter
 };

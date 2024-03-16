@@ -33,23 +33,26 @@ const MotherCoilSchema = new mongoose.Schema({
         type : Number
     },
     Grade : {
-        type : Number
+        type : String
     },
     CoilType : {
         type : String
     },
-    // RemainingWeigth: {
-    //     type: Number,
-    // },
-    // UsedWeigth: {
-    //     type: Number,
-    // },
-    // CertificateNo: {
-    //     type: Number,
-    // },
+    Trimm : {
+        type : Number
+    },
+    Scrap : {
+        type : Number
+    },
+    UsedWeigth : {
+        type : Number
+    },
     Date: {
         type: Date,
         default: Date.now,
+    },
+    Cut : {
+        type : String
     }
 })
 

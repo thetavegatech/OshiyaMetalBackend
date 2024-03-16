@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema({
         type: String,
         require: true
     },
-    mobileNO: {
+    AllotedMachine: {
         type: String,
         require: true
     }

@@ -1,8 +1,8 @@
 const express = require("express")
 const {CreateWeightMaster, getWeightMaster, getId} = require("../Controller/WeightMasterController")
-const { CreateMotherCoil, getdatabySrNo, getAllSrNos, getAllMotherCoilData } = require("../Controller/MotherCoilController")
+const { CreateMotherCoil, getdatabySrNo, getAllSrNos, getAllMotherCoilData,updateMotherCoil,getfullcutrecordsmothercoil } = require("../Controller/MotherCoilController")
 const { CreateSlittingMaster, getTotalWeight, getAllslittingData, getEntriesBySlitSrNo} = require("../Controller/SlittingController")
-const { getDailyproPlanData, DailyProPlanSave, getDailyproPlanById, dailyproplan, dailyproplanNo, getProductionPlanNos} = require("../Controller/DailyProPlanController")
+const { getDailyproPlanData, DailyProPlanSave, getDailyproPlanById,updateProductionPlanStatus, dailyproplan,getPendingProductionPlanNos, dailyproplanNo, getProductionPlanNos} = require("../Controller/DailyProPlanController")
 const { getDailyproReportData, DailyProReportSave } = require("../Controller/DailyProReportController")
 // const weightMasterController = require("../controllers/weightMasterController")
 // const slittingController = require('../controllers/slittingController');
@@ -35,6 +35,11 @@ router.get("/api/getallmothercoildata" , getAllMotherCoilData)
 // Add the new route for getting entries by SlitSrNo
 router.get('/entries/:SlitSrNo',getEntriesBySlitSrNo)
 
+// add the cut in the mothercoil
+router.post("/api/updatebymothercoil", updateMotherCoil)
+//getfull cut records
+router.get("/api/getfullcutrecordsmothercoil" , getfullcutrecordsmothercoil)
+
 
 //Slitting master router 
 
@@ -62,6 +67,12 @@ router.get("/api/getdailyproreportdata", getDailyproReportData)
 router.get("/api/dailyproplan/:productionPlanNo", dailyproplan)
  
 router.get("/api/dailyproplanNos", dailyproplanNo)
+
+// Define a new route for getting pending production plan numbers
+router.get('/api/getPendingProductionPlanNos', getPendingProductionPlanNos);
+
+router.put('/updateProductionPlanStatus/:productionPlanNo',updateProductionPlanStatus)
+
 router.get("/api/getProductionPlanNos", getProductionPlanNos)
 
 module.exports = router;

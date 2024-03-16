@@ -4,6 +4,7 @@ const router = require("./Router/WeightMasterRouter");
 const vehicleRoutes  = require("./Router/VehicleRouter");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const breakdownRoutes = require('./Router/BreakdownRouter');
 
 const app = express();
 
@@ -18,6 +19,8 @@ const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 app.use("/api/users", userRoute);
 app.use(router);
 app.use(vehicleRoutes);
+app.use('/api', breakdownRoutes);
+
 
 // Connect to MongoDB
 mongoose
@@ -40,9 +43,10 @@ const entrySchema = new mongoose.Schema({
   entries: [
     {
       MotherCoilId: Number,
+      SlitId: String,
       remainingWeightValue: Number,
       Slitcut: String,
-      combinedId: String,
+      // combinedId: String,
       useNoofSlitinPlan: Number,
       SlitSrNo: Number,
       SlitWidth: Number,
@@ -51,20 +55,17 @@ const entrySchema = new mongoose.Schema({
       WTMM: Number,
       SlitWeigth: Number,
       TotalWeigth: Number,
-      Trimm: Number,
-      Scrap: Number,
-      remainingWeight: Number,
       date: { type: Date, default: Date.now }
     },
   ],
 });
-entrySchema.pre('save', function (next) {
-  this.entries.forEach((entry) => {
-    // Assuming MotherCoilId and SlitSrNo are available in the entry
-    entry.combinedId = `${entry.MotherCoilId}/${entry.SlitSrNo}`;
-  });
-  next();
-});
+// entrySchema.pre('save', function (next) {
+//   this.entries.forEach((entry) => {
+//     // Assuming MotherCoilId and SlitSrNo are available in the entry
+//     entry.combinedId = `${entry.MotherCoilId}/${entry.SlitSrNo}`;
+//   });
+//   next();
+// });
 
 const Entry = mongoose.model("Entry", entrySchema);
 
@@ -183,17 +184,17 @@ app.put("/api/updateEntry/:entryId", async (req, res) => {
 app.get("/api/getEntryByCombinedId/:motherCoilId/:slitSrNo", async (req, res) => {
   try {
     const { motherCoilId, slitSrNo } = req.params;
-    const combinedId = `${motherCoilId}/${slitSrNo}`;
+    const SlitId = `${motherCoilId}/${slitSrNo}`;
 
     // Find the entry by combinedId
-    const entry = await Entry.findOne({ "entries.combinedId": combinedId });
+    const entry = await Entry.findOne({ "entries.SlitId": SlitId });
 
     if (!entry) {
-      return res.status(404).json({ message: 'Entry not found for the provided combinedId' });
+      return res.status(404).json({ message: 'Entry not found for the provided SlitId' });
     }
 
     // Find the specific entry within the entries array
-    const specificEntry = entry.entries.find(e => e.combinedId === combinedId);
+    const specificEntry = entry.entries.find(e => e.SlitId === SlitId);
 
     if (!specificEntry) {
       return res.status(404).json({ message: 'Specific entry not found within the entry document' });
@@ -201,7 +202,40 @@ app.get("/api/getEntryByCombinedId/:motherCoilId/:slitSrNo", async (req, res) =>
 
     res.json(specificEntry);
   } catch (error) {
-    console.error("Error fetching entry by combinedId:", error);
+    console.error("Error fetching entry by SlitId:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// API endpoint to update noOfSlits by combinedId
+app.put("/api/updateNoOfSlits/:motherCoilId/:slitSrNo", async (req, res) => {
+  try {
+    const { motherCoilId, slitSrNo } = req.params;
+    const SlitId = `${motherCoilId}/${slitSrNo}`;
+
+    // Assuming you have a model named 'Entry'
+    const entry = await Entry.findOne({ "entries.SlitId": SlitId });
+
+    if (!entry) {
+      return res.status(404).json({ message: 'Entry not found for the provided SlitId' });
+    }
+
+    // Find the specific entry within the entries array
+    const specificEntry = entry.entries.find(e => e.SlitId === SlitId);
+
+    if (!specificEntry) {
+      return res.status(404).json({ message: 'Specific entry not found within the entry document' });
+    }
+
+    // Update the noOfSlits in the specific entry
+    specificEntry.NoOfSlit = req.body.NoOfSlit;
+
+    // Save the updated entry
+    await entry.save();
+
+    res.json({ message: 'NoOfSlits updated successfully' });
+  } catch (error) {
+    console.error("Error updating noOfSlits:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -209,32 +243,11 @@ app.get("/api/getEntryByCombinedId/:motherCoilId/:slitSrNo", async (req, res) =>
 // Endpoint to get combined IDs
 app.get("/api/getCombinedIds", async (req, res) => {
   try {
-    // Use the aggregation framework to filter combined IDs
-    const result = await Entry.aggregate([
-      {
-        $unwind: "$entries"
-      },
-      {
-        $match: {
-          $expr: {
-            $ne: ["$entries.useNoofSlitinPlan", "$entries.SlitSrNo"]
-          }
-        }
-      },
-      {
-        $group: {
-          _id: "$entries.combinedId"
-        }
-      }
-    ]);
-
-    // Extract the combined IDs from the result
-    const combinedIds = result.map(entry => entry._id);
-
-    res.json(combinedIds);
+    const uniqueSlitIds = await Entry.distinct('entries.SlitId');
+    return res.json(uniqueSlitIds);
   } catch (error) {
-    console.error("Error fetching combined IDs:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -336,7 +349,7 @@ app.post('/api/updateentrybyplan', async (req, res) => {
 
   try {
     const updatedEntry = await Entry.findOneAndUpdate(
-      { "entries.combinedId": selectedCombinedId },
+      { "entries.SlitId": selectedCombinedId },
       { $set: { "entries.$.useNoofSlitinPlan": slitNos, /* update other fields */ } },
       { new: true }
     );
